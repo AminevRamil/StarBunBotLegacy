@@ -2,6 +2,9 @@ package com.epam.sturbun.commands;
 
 import com.epam.sturbun.DiscordBot;
 
+/**
+ * Команда задающая режим дебага в чате.
+ */
 public class DebugCommand implements Command {
 
     private DiscordBot bot;

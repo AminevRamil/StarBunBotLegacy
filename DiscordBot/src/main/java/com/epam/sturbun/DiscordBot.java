@@ -21,7 +21,7 @@ public class DiscordBot extends ListenerAdapter {
     @Getter
     private final String BOT_CALLING_PREFIX = "!sbb";
     @Setter
-    private boolean debugMode = false;
+    private boolean debugMode = true;
 
     Filter messageFilter = new Filter(this);
 
