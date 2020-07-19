@@ -1,12 +1,15 @@
 package com.epam.sturbun;
 
-import com.epam.sturbun.commands.*;
+import com.epam.sturbun.commands.Command;
+import com.epam.sturbun.commands.CommandType;
 import com.epam.sturbun.exceptions.CommandExceptions;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Scanner;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Log
@@ -15,45 +18,42 @@ public class Filter {
     private int prefixLength;
     DiscordBot bot;
 
-    private HashMap<String, CommandType> stringCommandTypesHashMap;
-    private HashMap<CommandType, Command> commandTypesCommandHashMap;
+    private static final Map<String, Class<? extends Command>> stringToCommand = new HashMap<>();
+
+    static {
+        // Пока не осилил как в Guava создать карту с множественным ключом для одного значения
+        Arrays.stream(CommandType.values()).forEach(commandType -> {
+            List<String> aliases = commandType.getAliases();
+            aliases.forEach(alias -> stringToCommand.put(alias, commandType.getCorrespondCommand()));
+        });
+    }
 
     Filter(DiscordBot discordBot) {
         this.bot = discordBot;
         prefixLength = discordBot.getBOT_CALLING_PREFIX().length() + 1;
         commandPattern = Pattern.compile("^(!sbb).*");
-
-        stringCommandTypesHashMap = new HashMap<>();
-        stringCommandTypesHashMap.put("help", CommandType.HELP);
-        stringCommandTypesHashMap.put("about", CommandType.ABOUT);
-        stringCommandTypesHashMap.put("debug", CommandType.DEBUG);
-        stringCommandTypesHashMap.put("game", CommandType.GAME);
-
-        commandTypesCommandHashMap = new HashMap<>();
-        commandTypesCommandHashMap.put(CommandType.HELP, new HelpCommand());
-        commandTypesCommandHashMap.put(CommandType.ABOUT, new AboutCommand());
-        commandTypesCommandHashMap.put(CommandType.DEBUG, new DebugCommand(bot));
-        commandTypesCommandHashMap.put(CommandType.GAME, new GameCommand());
     }
 
     public boolean isCommand(String message) {
         return commandPattern.matcher(message).matches();
     }
 
-    public String execute(MessageReceivedEvent event) {
+    public void execute(MessageReceivedEvent event) throws Exception {
         String rawMessage = event.getMessage().getContentRaw().trim();
 
-        if (rawMessage.equals("!sbb")) return "Ready for action!";
-        else rawMessage = rawMessage.substring(prefixLength);
+        if (rawMessage.equals("!sbb")) {
+            event.getChannel().sendMessage("Онлайн! Напишите помощь/справка/help для получения справки").submit();
+            return;
+        } else rawMessage = rawMessage.substring(prefixLength);
 
-        log.info(event.getMessage().toString());
+        log.info("Получено сообщение: " + event.getMessage().toString());
 
-        Scanner scanner = new Scanner(rawMessage);
-        String coreCommand =  scanner.next();
-        CommandType type = stringCommandTypesHashMap.get(coreCommand);
+        String coreCommand = rawMessage.split("\\s")[0].toLowerCase();
+        Class<? extends Command> commandClass = stringToCommand.get(coreCommand);
+        if (commandClass == null) throw new CommandExceptions("Несуществующая команда");
 
-        if (type == null) throw new CommandExceptions("Неверная команда");
-
-        return commandTypesCommandHashMap.get(type).execute(rawMessage);
+        Command command = commandClass.getDeclaredConstructor(DiscordBot.class).newInstance(bot);
+        command.prepare(event);
+        command.execute();
     }
 }

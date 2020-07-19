@@ -4,23 +4,23 @@ import com.epam.sturbun.DiscordBot;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-/**
- * Команда возвращающая описание бота и его возможностей.
- */
-public class AboutCommand implements Command {
+public class ProfileCommand implements Command {
 
     private DiscordBot bot;
     private String answer;
     private MessageChannel targetChannel;
 
-    AboutCommand(DiscordBot bot){
+    public ProfileCommand(DiscordBot bot){
         this.bot = bot;
     }
 
     @Override
-    public void prepare(MessageReceivedEvent message) {
-        answer = "Данный бот пишется в ходе ре-трининга";
-        targetChannel = message.getChannel();
+    public void prepare(MessageReceivedEvent event) {
+        answer = String.format("Username: %s\nId: %s\nFrom channel: %s",
+                event.getAuthor().getName(),
+                event.getAuthor().getId(),
+                event.getChannel().getName());
+        targetChannel = event.getChannel();
     }
 
     @Override

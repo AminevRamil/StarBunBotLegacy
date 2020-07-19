@@ -59,6 +59,8 @@
         <liquibase.changelogfile>resources/db.changelog-master.xml</liquibase.changelogfile>
         <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
         <telegrambots.version>4.9</telegrambots.version>
+        <JDA.version>4.2.0_177</JDA.version>
+        <guava.version>29.0-jre</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -87,7 +89,12 @@
             <dependency>
                 <groupId>net.dv8tion</groupId>
                 <artifactId>JDA</artifactId>
-                <version>4.2.0_177</version>
+                <version>${JDA.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>

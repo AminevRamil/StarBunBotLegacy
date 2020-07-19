@@ -3,6 +3,7 @@ package com.epam.sturbun.games.labyrinth;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class Game {
     @Getter
     int width;
     List<Player> players;
+    MessageChannel channel;
 
     public Game() {
         players = new LinkedList<>();

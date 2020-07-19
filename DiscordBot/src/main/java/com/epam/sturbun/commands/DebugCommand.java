@@ -1,6 +1,8 @@
 package com.epam.sturbun.commands;
 
 import com.epam.sturbun.DiscordBot;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
  * Команда задающая режим дебага в чате.
@@ -8,6 +10,9 @@ import com.epam.sturbun.DiscordBot;
 public class DebugCommand implements Command {
 
     private DiscordBot bot;
+    private MessageChannel targetChannel;
+    private String answer;
+    private Boolean mode;
 
     public DebugCommand(DiscordBot bot) {
         this.bot = bot;
@@ -16,19 +21,29 @@ public class DebugCommand implements Command {
     /**
      * Оставляю место для исправления
      *
-     * @param command комманда поступившая из чата
+     * @param message комманда поступившая из чата
      * @return ответ для пользователя
      */
     @Override
-    public String execute(String command) {
+    public void prepare(MessageReceivedEvent message) {
+        String command = message.getMessage().getContentRaw().substring(bot.getBOT_CALLING_PREFIX().length());
         if (command.contains("on") ^ command.contains("off")) {
             if (command.contains("on")) {
-                bot.setDebugMode(true);
-                return "Режим дебага активирован";
+                mode = true;
+                answer = "Режим дебага активирован";
             } else if (command.contains("off")) {
-                bot.setDebugMode(false);
-                return "Режим дебага деактивирован";
-            } else return "Команда задана неверно"; //Благодаря XOR, это условие недостижимо, но идея считает иначе.
-        } else return "Команда задана неверно";
+                mode = false;
+                answer = "Режим дебага деактивирован";
+            }
+        } else answer = "Команда задана неверно";
+        targetChannel = message.getChannel();
+    }
+
+    @Override
+    public void execute() {
+        if (mode != null) {
+            bot.setDebugMode(mode);
+        }
+        targetChannel.sendMessage(answer).submit();
     }
 }

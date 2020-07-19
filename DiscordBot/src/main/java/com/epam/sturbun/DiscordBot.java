@@ -41,17 +41,12 @@ public class DiscordBot extends ListenerAdapter {
         if (messageFilter.isCommand(event.getMessage().getContentRaw())) {
             MessageChannel channel = event.getChannel();
             try {
-                String answer = messageFilter.execute(event);
-                if (!answer.trim().isEmpty()) channel.sendMessage(answer).submit();
-            } catch (DiscordBotException e){
-                log.log(Level.FINE, "Exception: ", e);
-                if (debugMode) {
-                    channel.sendMessage(e.toString()).submit();
-                }
+                messageFilter.execute(event);
             } catch (Exception e){
                 log.log(Level.FINE, "Exception: ", e);
+                e.printStackTrace();
                 if (debugMode) {
-                    channel.sendMessage(e.toString()).submit();
+                    channel.sendMessage(String.format("```Java\n%s\n```", e.toString())).submit();
                 }
             }
         }
