@@ -2,7 +2,8 @@ package com.epam.sturbun;
 
 import com.epam.sturbun.commands.Command;
 import com.epam.sturbun.commands.CommandType;
-import com.epam.sturbun.exceptions.CommandExceptions;
+import com.epam.sturbun.exceptions.CommandException;
+import com.epam.sturbun.handlers.CommandHandler;
 import lombok.extern.java.Log;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -18,13 +19,13 @@ public class Filter {
     private int prefixLength;
     DiscordBot bot;
 
-    private static final Map<String, Class<? extends Command>> stringToCommand = new HashMap<>();
+    private static final Map<String, Class<? extends CommandHandler<? extends Command>>> stringToCommand = new HashMap<>();
 
     static {
         // Пока не осилил как в Guava создать карту с множественным ключом для одного значения
         Arrays.stream(CommandType.values()).forEach(commandType -> {
             List<String> aliases = commandType.getAliases();
-            aliases.forEach(alias -> stringToCommand.put(alias, commandType.getCorrespondCommand()));
+            aliases.forEach(alias -> stringToCommand.put(alias, commandType.getCorrespondCommandHandler()));
         });
     }
 
@@ -49,11 +50,11 @@ public class Filter {
         log.info("Получено сообщение: " + event.getMessage().toString());
 
         String coreCommand = rawMessage.split("\\s")[0].toLowerCase();
-        Class<? extends Command> commandClass = stringToCommand.get(coreCommand);
-        if (commandClass == null) throw new CommandExceptions("Несуществующая команда");
+        Class<? extends CommandHandler<? extends Command>> commandClass = stringToCommand.get(coreCommand);
+        if (commandClass == null) throw new CommandException("Несуществующая команда");
 
-        Command command = commandClass.getDeclaredConstructor(DiscordBot.class).newInstance(bot);
-        command.prepare(event);
+        CommandHandler<? extends Command> commandHandler = commandClass.getDeclaredConstructor(DiscordBot.class).newInstance(bot);
+        Command command = commandHandler.prepare(event, bot);
         command.execute();
     }
 }

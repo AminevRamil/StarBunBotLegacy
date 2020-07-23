@@ -61,6 +61,7 @@
         <telegrambots.version>4.9</telegrambots.version>
         <JDA.version>4.2.0_177</JDA.version>
         <guava.version>29.0-jre</guava.version>
+        <jcommander.version>1.78</jcommander.version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +96,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>${jcommander.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>

@@ -1,7 +1,6 @@
 package com.epam.sturbun;
 
 import java.util.logging.Level;
-import com.epam.sturbun.exceptions.DiscordBotException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
@@ -14,14 +13,13 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import javax.security.auth.login.LoginException;
 
-
 @Log
 public class DiscordBot extends ListenerAdapter {
 
     @Getter
-    private final String BOT_CALLING_PREFIX = "!sbb";
+    private static final String BOT_CALLING_PREFIX = "!sbb";
     @Setter
-    private boolean debugMode = true;
+    private Boolean debugMode = true;
 
     Filter messageFilter = new Filter(this);
 
@@ -39,14 +37,13 @@ public class DiscordBot extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (messageFilter.isCommand(event.getMessage().getContentRaw())) {
-            MessageChannel channel = event.getChannel();
             try {
                 messageFilter.execute(event);
             } catch (Exception e){
-                log.log(Level.FINE, "Exception: ", e);
+                log.log(Level.FINEST, "Exception: ", e);
                 e.printStackTrace();
                 if (debugMode) {
-                    channel.sendMessage(String.format("```Java\n%s\n```", e.toString())).submit();
+                    event.getChannel().sendMessage(String.format("```Java\n%s\n```", e.toString())).submit();
                 }
             }
         }

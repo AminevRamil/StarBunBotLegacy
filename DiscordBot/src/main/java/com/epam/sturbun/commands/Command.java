@@ -1,20 +1,13 @@
 package com.epam.sturbun.commands;
 
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import lombok.Data;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
-/**
- * Интерфейс для выполнения команд приходящих боту
- */
-public interface Command {
-    /**
-     * Метод обработки команды.
-     *
-     * @param message команда полученная из чата без префикса
-     * @return текстовое сообщение для пользователя
-     * @see com.epam.sturbun.DiscordBot для префикса
-     */
-    void prepare(MessageReceivedEvent message);
+@Data
+public abstract class Command {
+    MessageEmbed answer;
+    MessageChannel targetChannel;
 
-    void execute();
+    public abstract void execute();
 }

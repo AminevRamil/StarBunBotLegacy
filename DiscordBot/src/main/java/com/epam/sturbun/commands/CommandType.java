@@ -1,6 +1,7 @@
 package com.epam.sturbun.commands;
 
 
+import com.epam.sturbun.handlers.*;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
@@ -11,17 +12,17 @@ import java.util.List;
  */
 @Getter
 public enum CommandType {
-    HELP(ImmutableList.<String>builder().add("help", "помощь", "справка").build(), HelpCommand.class),
-    ABOUT(ImmutableList.<String>builder().add("about", "описание").build(), AboutCommand.class),
-    DEBUG(ImmutableList.<String>builder().add("debug", "дебаг", "отладка").build(), DebugCommand.class),
-    GAME(ImmutableList.<String>builder().add("game", "игра", "играть").build(), GameCommand.class),
-    PROFILE(ImmutableList.<String>builder().add("profile", "профайл", "профиль").build(), ProfileCommand.class);
+    HELP(ImmutableList.<String>builder().add("help", "помощь", "справка").build(), HelpHandler.class),
+    ABOUT(ImmutableList.<String>builder().add("about", "описание").build(), AboutHandler.class),
+    DEBUG(ImmutableList.<String>builder().add("debug", "дебаг", "отладка").build(), DebugHandler.class),
+    GAME(ImmutableList.<String>builder().add("game", "игра", "играть").build(), GameHandler.class),
+    PROFILE(ImmutableList.<String>builder().add("profile", "профайл", "профиль").build(), ProfileHandler.class);
 
-    CommandType(ImmutableList<String> aliases, Class<? extends Command> correspondCommand) {
+    CommandType(ImmutableList<String> aliases, Class<? extends CommandHandler<? extends Command>> correspondCommandHandler) {
         this.aliases = aliases;
-        this.correspondCommand = correspondCommand;
+        this.correspondCommandHandler = correspondCommandHandler;
     }
 
-    List<String> aliases;
-    private Class<? extends Command> correspondCommand;
+    public List<String> aliases;
+    private Class<? extends CommandHandler<? extends Command>> correspondCommandHandler;
 }
