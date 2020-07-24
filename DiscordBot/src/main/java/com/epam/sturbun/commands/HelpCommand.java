@@ -1,6 +1,6 @@
 package com.epam.sturbun.commands;
 
-import net.dv8tion.jda.api.entities.MessageChannel;
+import com.beust.jcommander.Parameter;
 
 /**
  * Команда выдающая справку о командах бота
@@ -8,6 +8,10 @@ import net.dv8tion.jda.api.entities.MessageChannel;
  * TODO выведение справки из ресурсов проекта
  */
 public class HelpCommand extends Command {
+
+    @Parameter(names = {"help", "помощь", "отладка"}, help = true)
+    String command = "help";
+
     public void execute(){
         targetChannel.sendMessage(answer).submit();
     }

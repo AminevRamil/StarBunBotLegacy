@@ -20,11 +20,12 @@ public class DebugHandler implements CommandHandler<DebugCommand> {
     @Override
     public DebugCommand prepare(MessageReceivedEvent message, DiscordBot bot) {
         String[] args = Arrays.
-                stream(message.getMessage().
-                        getContentRaw().
-                        split(" ")).
-                skip(1).
-                toArray(String[]::new);
+                stream(message.getMessage()
+                        .getContentRaw()
+                        .split(" "))
+                .skip(1)
+                .map(String::toLowerCase)
+                .toArray(String[]::new);
 
         DebugCommand debugCommand = new DebugCommand();
         debugCommand.setTargetChannel(message.getChannel());

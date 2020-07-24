@@ -1,5 +1,6 @@
 package com.epam.sturbun.handlers;
 
+import com.beust.jcommander.JCommander;
 import com.epam.sturbun.DiscordBot;
 import com.epam.sturbun.commands.HelpCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -7,19 +8,34 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class HelpHandler implements CommandHandler<HelpCommand> {
     DiscordBot bot;
 
-    public HelpHandler(DiscordBot bot){
+    public HelpHandler(DiscordBot bot) {
         this.bot = bot;
     }
 
     @Override
     public HelpCommand prepare(MessageReceivedEvent message, DiscordBot bot) {
+        String[] args = Arrays.
+                stream(message.getMessage()
+                        .getContentRaw()
+                        .split(" "))
+                .skip(1)
+                .map(String::toLowerCase)
+                .toArray(String[]::new);
+
         HelpCommand helpCommand = new HelpCommand();
         helpCommand.setAnswer(makeAnswer());
         helpCommand.setTargetChannel(message.getChannel());
+
+        JCommander.newBuilder()
+                .addObject(helpCommand)
+                .build()
+                .parse(args);
+
         return helpCommand;
     }
 

@@ -31,8 +31,8 @@ public class Filter {
 
     Filter(DiscordBot discordBot) {
         this.bot = discordBot;
-        prefixLength = discordBot.getBOT_CALLING_PREFIX().length() + 1;
-        commandPattern = Pattern.compile("^(!sbb).*");
+        prefixLength = DiscordBot.getBOT_CALLING_PREFIX().length() + 1;
+        commandPattern = Pattern.compile("^(" + DiscordBot.getBOT_CALLING_PREFIX() + ").*");
     }
 
     public boolean isCommand(String message) {
@@ -41,13 +41,13 @@ public class Filter {
 
     public void execute(MessageReceivedEvent event) throws Exception {
         String rawMessage = event.getMessage().getContentRaw().trim();
+        log.info("Получено сообщение: " + event.getMessage().toString());
 
-        if (rawMessage.equals("!sbb")) {
+        if (rawMessage.length() == prefixLength) {
             event.getChannel().sendMessage("Онлайн! Напишите помощь/справка/help для получения справки").submit();
             return;
         } else rawMessage = rawMessage.substring(prefixLength);
 
-        log.info("Получено сообщение: " + event.getMessage().toString());
 
         String coreCommand = rawMessage.split("\\s")[0].toLowerCase();
         Class<? extends CommandHandler<? extends Command>> commandClass = stringToCommand.get(coreCommand);
@@ -57,4 +57,5 @@ public class Filter {
         Command command = commandHandler.prepare(event, bot);
         command.execute();
     }
+
 }
