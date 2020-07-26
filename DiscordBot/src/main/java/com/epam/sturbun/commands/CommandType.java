@@ -16,7 +16,8 @@ public enum CommandType {
     ABOUT(ImmutableList.<String>builder().add("about", "описание").build(), AboutHandler.class),
     DEBUG(ImmutableList.<String>builder().add("debug", "дебаг", "отладка").build(), DebugHandler.class),
     GAME(ImmutableList.<String>builder().add("game", "игра", "играть").build(), GameHandler.class),
-    PROFILE(ImmutableList.<String>builder().add("profile", "профайл", "профиль").build(), ProfileHandler.class);
+    PROFILE(ImmutableList.<String>builder().add("profile", "профайл", "профиль").build(), ProfileHandler.class),
+    CREATE(ImmutableList.<String>builder().add("create", "создать").build(), CreateHandler.class);
 
     CommandType(ImmutableList<String> aliases, Class<? extends CommandHandler<? extends Command>> correspondCommandHandler) {
         this.aliases = aliases;

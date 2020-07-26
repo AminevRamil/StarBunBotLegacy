@@ -19,7 +19,7 @@ public class DebugCommand extends Command {
 
     @Override
     public void execute() {
-        targetChannel.sendMessage(answer).submit();
+        targetChannel.sendMessage(answer.build()).submit();
         bot.setDebugMode(mode);
     }
 

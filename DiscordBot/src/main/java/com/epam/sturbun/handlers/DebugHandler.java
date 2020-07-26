@@ -41,7 +41,7 @@ public class DebugHandler implements CommandHandler<DebugCommand> {
         else eb.setDescription("Режим отладки деактивирован");
         eb.setColor(new Color(235, 192, 0));
         eb.setThumbnail("https://avatars1.githubusercontent.com/u/41346424?s=460&u=4ef760d7b73102d55baf43237e33e32c37e3b2b6&v=4");
-        debugCommand.setAnswer(eb.build());
+        debugCommand.setAnswer(eb);
         debugCommand.setBot(bot);
         return debugCommand;
     }

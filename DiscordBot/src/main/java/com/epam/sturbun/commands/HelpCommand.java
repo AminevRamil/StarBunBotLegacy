@@ -2,6 +2,8 @@ package com.epam.sturbun.commands;
 
 import com.beust.jcommander.Parameter;
 
+import java.util.List;
+
 /**
  * Команда выдающая справку о командах бота
  * TODO сделать возможность получения справки по отдельным командам ("help debug", "help game" и т.п.)
@@ -9,10 +11,7 @@ import com.beust.jcommander.Parameter;
  */
 public class HelpCommand extends Command {
 
-    @Parameter(names = {"help", "помощь", "отладка"}, help = true)
-    String command = "help";
-
     public void execute(){
-        targetChannel.sendMessage(answer).submit();
+        targetChannel.sendMessage(answer.build()).submit();
     }
 }

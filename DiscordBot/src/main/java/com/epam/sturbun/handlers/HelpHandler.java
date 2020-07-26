@@ -1,14 +1,11 @@
 package com.epam.sturbun.handlers;
 
-import com.beust.jcommander.JCommander;
 import com.epam.sturbun.DiscordBot;
 import com.epam.sturbun.commands.HelpCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
-import java.util.Arrays;
 
 public class HelpHandler implements CommandHandler<HelpCommand> {
     DiscordBot bot;
@@ -19,27 +16,14 @@ public class HelpHandler implements CommandHandler<HelpCommand> {
 
     @Override
     public HelpCommand prepare(MessageReceivedEvent message, DiscordBot bot) {
-        String[] args = Arrays.
-                stream(message.getMessage()
-                        .getContentRaw()
-                        .split(" "))
-                .skip(1)
-                .map(String::toLowerCase)
-                .toArray(String[]::new);
-
         HelpCommand helpCommand = new HelpCommand();
         helpCommand.setAnswer(makeAnswer());
         helpCommand.setTargetChannel(message.getChannel());
 
-        JCommander.newBuilder()
-                .addObject(helpCommand)
-                .build()
-                .parse(args);
-
         return helpCommand;
     }
 
-    private MessageEmbed makeAnswer() {
+    private EmbedBuilder makeAnswer() {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Справка по командам бота", "https://github.com/AminevRamil/StarBunBot");
         String prefix = DiscordBot.getBOT_CALLING_PREFIX();
@@ -51,6 +35,6 @@ public class HelpHandler implements CommandHandler<HelpCommand> {
         eb.addField("about", "Кратное описание бота", true);
         eb.addField("debug [on/off]", "Включение/выключение режима отладки", true);
         eb.addField("profile", "Возвращает данные о пользователе", true);
-        return eb.build();
+        return eb;
     }
 }

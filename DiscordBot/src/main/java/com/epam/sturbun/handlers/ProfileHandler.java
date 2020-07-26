@@ -26,7 +26,7 @@ public class ProfileHandler implements CommandHandler<ProfileCommand> {
         eb.setThumbnail(author.getEffectiveAvatarUrl());
         eb.addField("ID", author.getId(), true);
         eb.addField("Tag", author.getAsTag(), true);
-        profileCommand.setAnswer(eb.build());
+        profileCommand.setAnswer(eb);
         return profileCommand;
     }
 }

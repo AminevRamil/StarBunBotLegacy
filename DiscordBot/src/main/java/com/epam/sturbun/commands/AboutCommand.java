@@ -7,6 +7,6 @@ public class AboutCommand extends Command {
 
     @Override
     public void execute() {
-        targetChannel.sendMessage(answer).submit();
+        targetChannel.sendMessage(answer.build()).submit();
     }
 }
