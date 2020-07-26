@@ -1,100 +1,72 @@
 package com.epam.sturbun;
 
 import com.epam.sturbun.exceptions.CommandException;
+import com.epam.sturbun.util.Filter;
+import com.epam.sturbun.util.VoiceChannelCloser;
 import com.epam.sturbun.util.WordFilter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.channel.voice.GenericVoiceChannelEvent;
-import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
-import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.security.auth.login.LoginException;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @Log
 public class DiscordBot extends ListenerAdapter {
 
     @Getter
     private static final String BOT_CALLING_PREFIX = "!sbb";
+    @Getter
     private static final long THIS_BOT_ID = 732146645961015326L;
+    Filter messageFilter = new Filter(this);
     @Setter
     private Boolean debugMode = true;
-
-    Filter messageFilter = new Filter(this);
-
-    public static void main(String[] args) throws LoginException {
-        if (args.length < 1) {
-            System.out.println("You have to provide a token as first argument!");
-            System.exit(1);
-        }
-        DiscordBot bot = new DiscordBot();
-        JDA jda = JDABuilder.createDefault(args[0], GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES)
-                .addEventListeners(bot)
-                .setActivity(Activity.playing("on damn fiddle"))
-                .addEventListeners()
-                .build();
-        jda.getEventManager().register(bot);
-    }
+    private Category dynamicVoiceChannels;
 
     @Override
     public void onReady(@Nonnull ReadyEvent event) {
         super.onReady(event);
-        censoring(event);
-    }
-
-    @SubscribeEvent
-    @Override
-    public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
-        super.onGuildVoiceLeave(event);
-        System.err.println("Выход");
-    }
-
-    @SubscribeEvent
-    @Override
-    public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent event) {
-        //super.onGuildVoiceJoin(event);
-        System.err.println("Вход");
-    }
-
-    @Override
-    public void onGenericVoiceChannel(@Nonnull GenericVoiceChannelEvent event) {
-        super.onGenericVoiceChannel(event);
-        System.err.println("Создание или удаление голосового канала");
-    }
-
-    private void censoring(@Nonnull ReadyEvent event) {
-        TextChannel textChannel = event.getJDA().getTextChannelById(732200062939168840L);
-        StringBuilder report = new StringBuilder();
-        Map<User, List<Message>> userListMap = textChannel
-                .getIterableHistory().stream()
-                .takeWhile(message -> message.getAuthor().getIdLong() != THIS_BOT_ID)
-                .filter(message -> WordFilter.hasBlockWords(message.getContentRaw()))
-                .collect(Collectors.groupingBy(Message::getAuthor));
-        userListMap.forEach((user, messages) -> {
-            messages.forEach(message -> message.delete().submit());
-            report.append("Удалено ").append(messages.size()).append(" сообщений от пользователя ").append(user.getAsTag()).append("\n");
+        WordFilter.startupCensoring(event);
+        Guild guild = event.getJDA().getGuildById(731154486176907289L);
+        assert guild != null;
+        Optional<Category> optionalCategory = guild.getCategories()
+                .stream()
+                .filter(isDynamicCategoryExist())
+                .findAny();
+        dynamicVoiceChannels = optionalCategory.orElseGet(() -> {
+            // Создание категории, если нет
+            try {
+                return guild.createCategory("Dynamic (r)").submit().get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            return null; // Идея считает, что здесь без этого не обойтись
         });
-        if (report.length() != 0) {
-            report.insert(0, "Доклад о цензуре канала:\n");
-            textChannel.sendMessage(report).submit();
+
+        CreateVoiceChannelIfNoEmptyOne();
+    }
+
+    @NotNull
+    private Predicate<Category> isDynamicCategoryExist() {
+        return category -> category.getName().toLowerCase().equals("dynamic (r)");
+    }
+
+    private void CreateVoiceChannelIfNoEmptyOne() {
+        assert dynamicVoiceChannels != null;
+        int voiceChannelCount = dynamicVoiceChannels.getVoiceChannels().size();
+        if (dynamicVoiceChannels.getVoiceChannels().stream().noneMatch(voiceChannel -> voiceChannel.getMembers().size() == 0)) {
+            dynamicVoiceChannels.createVoiceChannel("DevVoiceChannel " + (voiceChannelCount + 1)).submit();
         }
     }
 
@@ -121,5 +93,17 @@ public class DiscordBot extends ListenerAdapter {
                 event.getChannel().sendMessage(String.format("```Java\n%s\n```", e.toString())).submit();
             }
         }
+    }
+
+    @Override
+    public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent event) {
+        CreateVoiceChannelIfNoEmptyOne();
+    }
+
+    @Override
+    public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
+        Runnable voiceChannelCloser = new VoiceChannelCloser(event.getChannelLeft());
+        Thread thread = new Thread(voiceChannelCloser);
+        thread.start();
     }
 }

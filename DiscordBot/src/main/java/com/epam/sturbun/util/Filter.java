@@ -1,5 +1,6 @@
-package com.epam.sturbun;
+package com.epam.sturbun.util;
 
+import com.epam.sturbun.DiscordBot;
 import com.epam.sturbun.commands.Command;
 import com.epam.sturbun.commands.CommandType;
 import com.epam.sturbun.exceptions.CommandException;
@@ -29,7 +30,7 @@ public class Filter {
         });
     }
 
-    Filter(DiscordBot discordBot) {
+    public Filter(DiscordBot discordBot) {
         this.bot = discordBot;
         prefixLength = DiscordBot.getBOT_CALLING_PREFIX().length() + 1;
         commandPattern = Pattern.compile("^(" + DiscordBot.getBOT_CALLING_PREFIX() + ").*");
