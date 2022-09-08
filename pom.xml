@@ -40,7 +40,7 @@
         <maven-site-plugin.ver>3.9.0</maven-site-plugin.ver>
         <lombok.ver>1.18.12</lombok.ver>
         <logback-classic.ver>1.2.3</logback-classic.ver>
-        <postgresql.ver>42.2.12</postgresql.ver>
+        <postgresql.ver>42.4.1</postgresql.ver>
         <liquibase.ver>3.8.9</liquibase.ver>
         <hibernate.ver>5.4.14.Final</hibernate.ver>
         <junit.jupiter.ver>5.7.0-M1</junit.jupiter.ver>
