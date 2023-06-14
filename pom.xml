@@ -60,7 +60,7 @@
         <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
         <telegrambots.version>4.9</telegrambots.version>
         <JDA.version>4.2.0_177</JDA.version>
-        <guava.version>29.0-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <jcommander.version>1.78</jcommander.version>
     </properties>
 
